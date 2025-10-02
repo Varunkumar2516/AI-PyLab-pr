@@ -1,72 +1,26 @@
-# 🤖 AI-PyLab
+# 🤖 AI Chat Assistant
 
-Welcome to **AI-PyLab** — a beginner-friendly playground for exploring **AI with Python**. This repo provides simple Python scripts that help you **interact with AI models** using OpenAI/OpenRouter APIs and practice API-based projects.
-
-> 🚀 **Learn, experiment, and build AI projects in Python!**
-
----
-
-## 📌 About This Repo
-
-**AI-PyLab** is designed for beginners to:
-
-- Write Python scripts to interact with AI models  
-- Understand API inputs and outputs  
-- Practice AI applications safely  
-
-The first script in this repo demonstrates a **simple interactive chatbot**: it **takes user input and gives a reply until the user presses 'n'**.
-
----
-
-## 💡 Why Use AI-PyLab?
-
-- 🔗 Learn to connect Python programs with AI APIs  
-- 📝 Practice reading and responding to user inputs  
-- 🤖 Build basic AI projects like chatbots  
-- 🧩 Gain confidence with Python scripting and AI  
-
----
-
-## 🧠 Topics Covered
-
-- **Getting Started**
-  - Installing Python 3.x  
-  - Required libraries: `openai`, `requests`, `dotenv`  
-  - Setting up API keys  
-
-- **Basic AI Script**
-  - Interactive chatbot taking user input  
-  - Looping until user exits  
-
-- **Next Steps**
-  - Extend chatbot functionality  
-  - Experiment with multiple AI models  
-  - Explore API-based mini projects  
+A simple Python script that acts as an interactive AI chat assistant using the **OpenRouter/OpenAI API**.  
+It responds to user questions until the user chooses to exit.
 
 ---
 
 ## 🛠 Requirements
 
 - Python 3.x  
-- `openai` or `openrouter` Python library (`pip install openai requests python-dotenv`)  
-- OpenAI/OpenRouter API key  
+- `openai` and `python-dotenv` (`pip install openai python-dotenv`)  
+- OpenRouter API key in a `.env` file as `OPENROUTER_API_KEY`
 
 ---
 
-## 🎯 Who Is This For?
+## 💡 How to Run
 
-- Beginners learning AI and Python  
-- Students practicing API integration  
-- Anyone curious about building AI applications  
+1. FIrst create the .env file in same folder
+2. Add your API key in a `.env` file: ( like  , OPENROUTER_API_KEY= __your key__)
+3. then run the app.py file 
+4. Press `Y` to ask a question, `N` to exit.
 
----
 
-## 🤝 Contribute
-
-Found a bug or have a new script idea?  
-**Fork**, open issues, or create pull requests — contributions are welcome!  
-
----
 ## 📌 Tags
 
 `python` `AI` `Models` `project-repository`  `college-projects`
