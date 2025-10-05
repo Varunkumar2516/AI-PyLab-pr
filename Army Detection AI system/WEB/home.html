@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f3e5f5; /* Light purple background */
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 50px; /* Space below title */
+            color: #333;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 20px; /* More rounded to match screenshot */
+            background-color: #ffffff;
+            color: #333;
+            transition: background-color 0.3s;
+            width: 200px; /* Fixed width for buttons */
+        }
+        button:hover {
+            background-color: #f0f0f0;
+        }
+        #video-container {
+            margin-top: 20px;
+            display: none;
+        }
+        #video {
+            width: 640px;
+            height: 480px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #selected-file {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        #sitrep-display {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-width: 800px;
+            text-align: left;
+        }
+        #error-message {
+            margin-top: 20px;
+            color: red;
+            font-size: 14px;
+            display: none;
+        }
+        #loading-indicator {
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Home Page</h1>
+    <div class="button-container">
+        <button id="open-camera">Open Camera</button>
+        <button id="start-recording" style="display: none;">Start Recording</button>
+        <button id="stop-recording" style="display: none;">Stop Recording</button>
+        <button id="upload-footage">Upload Footage</button>
+        <button id="logout">Logout</button>
+    </div>
+    <div id="video-container">
+        <video id="video" autoplay></video>
+        <button id="close-camera">Close Camera</button>
+    </div>
+    <p id="selected-file"></p>
+    <input type="file" id="file-input" style="display: none;" accept="video/*">
+    <p id="loading-indicator">Loading SITREP...</p>
+    <pre id="sitrep-display"></pre>
+    <p id="error-message"></p>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_DKXLYmnAicyNXv4-ZXdDvZIRqPgG0ko",
+            authDomain: "temp-login-8d249.firebaseapp.com",
+            projectId: "temp-login-8d249",
+            storageBucket: "temp-login-8d249.firebasestorage.app",
+            messagingSenderId: "833794972683",
+            appId: "1:833794972683:web:e3bc2a2674f22046d1fb0e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '/login.html';
+            }
+        });
+
+        const logoutBtn = document.getElementById('logout');
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = '/login.html';
+            } catch (error) {
+                alert('Error logging out: ' + error.message);
+            }
+        });
+
+        const openCameraBtn = document.getElementById('open-camera');
+        const closeCameraBtn = document.getElementById('close-camera');
+        const startRecordingBtn = document.getElementById('start-recording');
+        const stopRecordingBtn = document.getElementById('stop-recording');
+        const uploadFootageBtn = document.getElementById('upload-footage');
+        const fileInput = document.getElementById('file-input');
+        const video = document.getElementById('video');
+        const videoContainer = document.getElementById('video-container');
+        const selectedFileP = document.getElementById('selected-file');
+        const sitrepDisplay = document.getElementById('sitrep-display');
+        const errorMessage = document.getElementById('error-message');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        let stream = null;
+        let recorder = null;
+        let recordedChunks = [];
+
+        openCameraBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                videoContainer.style.display = 'block';
+                startRecordingBtn.style.display = 'block';
+                recorder = new MediaRecorder(stream);
+                recorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+                recorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    recordedChunks = [];
+                    uploadBlob(blob, 'recorded_video.webm');
+                };
+            } catch (error) {
+                alert('Error accessing camera: ' + error.message);
+            }
+        });
+
+        startRecordingBtn.addEventListener('click', () => {
+            if (recorder) {
+                recordedChunks = [];
+                recorder.start();
+                startRecordingBtn.style.display = 'none';
+                stopRecordingBtn.style.display = 'block';
+            }
+        });
+
+        stopRecordingBtn.addEventListener('click', () => {
+            if (recorder) {
+                recorder.stop();
+                stopRecordingBtn.style.display = 'none';
+                startRecordingBtn.style.display = 'block';
+            }
+        });
+
+        closeCameraBtn.addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+            videoContainer.style.display = 'none';
+            startRecordingBtn.style.display = 'none';
+            stopRecordingBtn.style.display = 'none';
+        });
+
+        uploadFootageBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFileP.textContent = `Selected file: ${file.name}`;
+                uploadBlob(file, file.name);
+            }
+        });
+
+        async function uploadBlob(blob, filename) {
+            const formData = new FormData();
+            formData.append('video', blob, filename);
+
+            loadingIndicator.style.display = 'block';
+            errorMessage.style.display = 'none';
+            sitrepDisplay.textContent = '';
+
+            try {
+                const response = await fetchWithRetry('http://localhost:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const sitrep = await response.text();
+                sitrepDisplay.textContent = sitrep;
+            } catch (error) {
+                errorMessage.textContent = 'Error uploading video: ' + error.message;
+                errorMessage.style.display = 'block';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    if (i === retries - 1) {
+                        throw error;
+                    }
+                    await new Promise(res => setTimeout(res, delay * (i + 1)));
+                }
+            }
+        }
+
+        async function fetchSitrep() {
+            loadingIndicator.style.display = 'block';
+            errorMessage.style.display = 'none';
+            sitrepDisplay.textContent = '';
+
+            try {
+                const response = await fetchWithRetry('http://localhost:5000/get_sitrep', { method: 'GET' });
+                const sitrep = await response.text();
+                sitrepDisplay.textContent = sitrep || 'No SITREP available yet.';
+            } catch (error) {
+                errorMessage.textContent = 'Error fetching SITREP: ' + error.message + '. The API might be overloaded or unavailable.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Fetch SITREP on load
+        fetchSitrep();
+
+        // Poll for SITREP every 1 minute
+        setInterval(fetchSitrep, 60000);
+    </script>
+</body>
+</html>

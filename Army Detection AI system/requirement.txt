@@ -1,0 +1,9 @@
+flask
+werkzeug
+opencv-python
+numpy
+torch
+torchvision
+mediapipe
+ultralytics
+requests

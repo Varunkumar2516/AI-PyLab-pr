@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "833794972683",
+    "project_id": "temp-login-8d249",
+    "storage_bucket": "temp-login-8d249.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833794972683:android:3d4e6741c5d50bd1d1fb0e",
+        "android_client_info": {
+          "package_name": "com.example.login_page"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfRRmUdzdxEv3YS3qTLvVvr5hFpBvIQ6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
